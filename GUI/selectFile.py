@@ -16,7 +16,7 @@ class Food_GUI(QWidget):
         self.radius = 50
         self.imgscalefact = 1
         self.initUI()
-        if self.file[0] != '':
+        if self.file:
             self.show_image()
             self.textbox.setText(self.file[0])
 
@@ -191,15 +191,15 @@ class Food_GUI(QWidget):
         self.saveconfirmation.setText('coordinates saved')
 
 def startGUI(file=''):
+    print(file)
     # qapplication object
     app = QApplication(sys.argv)
     #### stylesheets
     app.setStyleSheet(STYLE)
     # actiate GUI with 800x800
     w = Food_GUI(800,800, file)
-    # run the app
-    app.exec_()
-
+    sys.exit(app.exec_())
+    return "done"
 
 ### stylesheets
 STYLE = """
@@ -210,11 +210,16 @@ color: black;
 """
 
 if __name__ == '__main__':
-    # qapplication object
-    app = QApplication(sys.argv)
-    #### stylesheets
-    app.setStyleSheet(STYLE)
-    # actiate GUI with 800x800
-    w = Food_GUI(800,800)
-    # run the app
-    sys.exit(app.exec_())
+    startGUI()
+    # # für jede PyQt-App muss ein Objekt der
+    # # Klasse QApplication erzeugt werden
+    # app = QApplication(sys.argv)
+    # #### stylesheets
+    # app.setStyleSheet(STYLE)
+    # # Ein Objekt der Klasse Window wird erzeugt und
+    # # sofort angezeigt
+    # # hier wird die GUI aktiviert und in die Hauptschleife
+    # # gegeben, die Ausführung
+    # w = Food_GUI(800,800)
+    #
+    # sys.exit(app.exec_())
