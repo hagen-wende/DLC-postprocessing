@@ -7,6 +7,7 @@ import os.path
 import cv2
 import pandas as pd
 import matplotlib.pyplot as plt
+import datetime
 
 def getvideos():
     Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
@@ -35,12 +36,41 @@ def extractframe(video_name):
     # save frame
     cv2.imwrite(my_video_name+'_stillframe.png', frame)
 
-# mark foodlocation for all videos if not present
-# get list of videos and extract still frame
+def plotactivity(h5file, animalsdf, rollingwindow, starttime):
+    # make rollig mean to smooth data
+    animalsdf[animalsdf.columns[0][0],'all','analysis','sumfeeding_0'] = animalsdf[animalsdf.columns[0][0],'all','analysis','sumfeeding_0'].rolling(rollingwindow).mean()
+    animalsdf[animalsdf.columns[0][0],'all','analysis','sumfeeding_1'] = animalsdf[animalsdf.columns[0][0],'all','analysis','sumfeeding_1'].rolling(rollingwindow).mean()
+    animalsdf[animalsdf.columns[0][0],'all','analysis','isactive'] = animalsdf[animalsdf.columns[0][0],'all','analysis','isactive'].rolling(rollingwindow).mean()
+
+    # convert time to time of day starting from start of video (8 am)
+    animalsdf[animalsdf.columns[0][0],'all','analysis','time'] = animalsdf[animalsdf.columns[0][0],'all','analysis', 'time']+8
+
+    fig = plt.figure()
+    fig.suptitle('Pachnoda aemula activity', fontsize=20)
+    fig.set_size_inches(5*2.54, 2.5*2.54)
+    ax1 = fig.add_subplot()
+    fig.patch.set_facecolor('#e2e2e2')
+    ax1.set_facecolor('#bebebe')
+    #ax1.set_ylim(min(y_values)-1,max(y_values)+1)
+    #ax1.set_xlim(0,7)
+
+    # plot regress line
+    l1, = ax1.plot(animalsdf[animalsdf.columns[0][0],'all','analysis']['time'], animalsdf[animalsdf.columns[0][0],'all','analysis']['sumfeeding_0'], '#08ae27', zorder = 1)
+    l2, = ax1.plot(animalsdf[animalsdf.columns[0][0],'all','analysis']['time'], animalsdf[animalsdf.columns[0][0],'all','analysis']['sumfeeding_1'], '#000076', zorder = 2)
+    l3, = ax1.plot(animalsdf[animalsdf.columns[0][0],'all','analysis']['time'], animalsdf[animalsdf.columns[0][0],'all','analysis']['isactive'], '#f70606', zorder = 3)
+
+    ax1.set_xlabel("time (hours)", fontsize=17)
+    ax1.set_ylabel("# of beetles", rotation=90, fontsize=17)
+    ax1.legend((l1, l2, l3), ('beetles feeding on artificial diet', 'beetles feeding on banana', 'active beetles'), loc='upper right', shadow=True)
+
+    fig.savefig(h5file+'_activity.png', facecolor=fig.get_facecolor())
+
+#### mark foodlocation for all videos if not present
 # collect all project file names in Dataframe
 projectfiles = pd.DataFrame({'videos': getvideos()})
-projectfiles['stillframes'] = ''
 
+# extract still frame
+projectfiles['stillframes'] = ''
 if len(projectfiles)>0:
     # check whether frame picture is there, otherwise generate it
     for video in projectfiles['videos']:
@@ -64,27 +94,29 @@ for video in projectfiles['videos']:
     if h5_file:
         projectfiles['h5files'][projectfiles.index[projectfiles['videos'] == video]] = h5_file[0]
 
-# Analysis
+###################
+#### Analysis #####
 # general activity
 #   number of animals active
-# presence at feed pots
+# presence at food pots
 #   total
 #   comparison between different food sources
+
+# for short videos rollingwindow must be reduced!!!
+rollingwindow = 600 #  2 = 1 second @fps=2; 120 = 1 min
+starttime = 8 # starttime of video in hours
 
 for h5file in projectfiles['h5files']:
     if h5file:
         foodcsv = projectfiles['foodcsvs'][projectfiles.index[projectfiles['h5files'] == h5file]][0]
-        # for small files rollingwindow must be reduced!!!
-        animalsfeeding = feedingcount.analysis(h5file, foodcsv, 2, 100)
-        print(h5file)
+
+        animalsfeeding = feedingcount.analysis(h5file, foodcsv, 2)
+        plotactivity(h5file, animalsfeeding, rollingwindow, starttime)
     else:
         print("no data to analyse for ", projectfiles['videos'][projectfiles.index[projectfiles['h5files'] == h5_file]][0])
 
-animalsfeeding[animalsfeeding.columns[0][0],'all','analysis'].plot(x='time')
-plt.show()
-# make rollig mean to smooth dataframe
-input_df[input_df.columns[0][0],'all','analysis','sumfeeding_'+str(i)] = input_df[input_df.columns[0][0],'all','analysis','sumfeeding_'+str(i)].rolling(rollingwindow).mean()
-input_df[input_df.columns[0][0],'all','analysis','isactive'] = input_df[input_df.columns[0][0],'all','analysis','isactive'].rolling(rollingwindow).mean()
 # TODO
 # presence at feed pots
 #   duration of visit
+# activity
+#   resting vs moving
