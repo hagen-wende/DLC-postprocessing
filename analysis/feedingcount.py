@@ -57,8 +57,8 @@ if __name__ == '__main__':
     # do something
     path="D:\\Hobby\\kaefer_tracking\\raspberry_pi\\00_DLC_postprocessing"
     os.chdir(path)
-    file = os.path.join(path,"data","20200712_paemula_cropDLC_resnet50_200714PaemulaJul14shuffle1_50000_bx.h5")
-    foodcsv = os.path.join(path,"data","20200712_paemula_crop_stillframe.pngfood.csv")
+    file = os.path.join(path,"data","200710_paemula_crop_sampleDLC_resnet50_200714PaemulaJul14shuffle1_50000_bx.h5")
+    foodcsv = os.path.join(path,"data","200710_paemula_crop_sample_stillframe.pngfood.csv")
     animalsfeeding = analysis(file, foodcsv, 2, 1200)
     animalsfeeding.plot(x='time')
     plt.show()
