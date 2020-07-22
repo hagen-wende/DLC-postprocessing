@@ -215,6 +215,6 @@ if __name__ == '__main__':
     #### stylesheets
     app.setStyleSheet(STYLE)
     # actiate GUI with 800x800
-    w = Food_GUI(800,800)
+    w = Food_GUI(800,800, '')
     # run the app
     sys.exit(app.exec_())
