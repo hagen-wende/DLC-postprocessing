@@ -50,7 +50,7 @@ def analysis(h5file, foodcsv, fps, rollingwindow):
         input_df[input_df.columns[0][0],'all','analysis','isactive'] += input_df[input_df.columns[0][0]][animal]['scutellum'].apply(lambda row: isactive(row['x']), axis=1)
         print(animal)
     input_df[input_df.columns[0][0],'all','analysis','isactive'] = input_df[input_df.columns[0][0],'all','analysis','isactive'].rolling(rollingwindow).mean()
-    return input_df
+    return input_df.sort_index(axis=1)
 
 if __name__ == '__main__':
     # do something
@@ -59,5 +59,6 @@ if __name__ == '__main__':
     file = os.path.join(path,"data","200710_paemula_crop_sampleDLC_resnet50_200714PaemulaJul14shuffle1_50000_bx.h5")
     foodcsv = os.path.join(path,"data","200710_paemula_crop_sample_stillframe.pngfood.csv")
     animalsfeeding = analysis(file, foodcsv, 2, 1200)
+
     animalsfeeding[animalsfeeding.columns[0][0],'all','analysis'].plot(x='time')
     plt.show()
