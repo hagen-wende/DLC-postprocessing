@@ -1,5 +1,5 @@
 # DLC-postprocessing
-Postprocessing for Deep Lab Cut Data for my beetle tracking project
+Postprocessing for <a href="https://github.com/DeepLabCut/DeepLabCut">DeepLabCut</a> Data for my beetle tracking project
 
 ## Main components
 - GUI to interactively select circular food source
