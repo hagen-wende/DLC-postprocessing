@@ -83,7 +83,7 @@ for h5_file in projectfiles['h5files']:
         # for small files rollingwindow must be reduced!!!
         animalsfeeding = feedingcount.analysis(h5_file, foodcsv, 2, 100)
         print(h5_file)
-        animalsfeeding.plot(x='time')
+        animalsfeeding[animalsfeeding.columns[0][0],'all','analysis'].plot(x='time')
         plt.show()
     else:
         print("no data to analyse for ", projectfiles['videos'][projectfiles.index[projectfiles['h5files'] == h5_file]][0])
