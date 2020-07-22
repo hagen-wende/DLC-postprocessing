@@ -38,9 +38,13 @@ def analysis(h5file, foodcsv, fps, rollingwindow):
                 print("calculating presence in spot: ", line)
                 # make separate column for each food spot
                 input_df[input_df.columns[0][0],'all','analysis','sumfeeding_'+str(i)] = 0
+                temp_df = pd.DataFrame(input_df.index.values)
                 for animal in sorted(set(input_df.columns.get_level_values('individuals')[input_df.columns.get_level_values('individuals') != 'all'])):
                     print(animal)
-                    input_df[input_df.columns[0][0],'all','analysis','sumfeeding_'+str(i)] += input_df[input_df.columns[0][0]][animal]['head'].apply(lambda row: incircle(row['x'], row['y'], x_food, y_food, rad_food), axis=1)
+                    # check whether either head or scutellum are within the food circle
+                    temp_df['head'] = input_df[input_df.columns[0][0]][animal]['head'].apply(lambda row: incircle(row['x'], row['y'], x_food, y_food, rad_food), axis=1)
+                    temp_df['scutellum'] = input_df[input_df.columns[0][0]][animal]['scutellum'].apply(lambda row: incircle(row['x'], row['y'], x_food, y_food, rad_food), axis=1)
+                    input_df[input_df.columns[0][0],'all','analysis','sumfeeding_'+str(i)] += temp_df[["head", "scutellum"]].max(axis=1)
                 # make rollig mean to smooth dataframe
                 input_df[input_df.columns[0][0],'all','analysis','sumfeeding_'+str(i)] = input_df[input_df.columns[0][0],'all','analysis','sumfeeding_'+str(i)].rolling(rollingwindow).mean()
 
