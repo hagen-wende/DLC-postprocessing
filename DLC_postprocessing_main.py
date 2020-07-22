@@ -65,6 +65,8 @@ def plotactivity(h5file, animalsdf, rollingwindow, starttime):
 
     fig.savefig(h5file+'_activity.png', facecolor=fig.get_facecolor())
 
+####################################################
+#### collect and prepare data ######################
 #### mark foodlocation for all videos if not present
 # collect all project file names in Dataframe
 projectfiles = pd.DataFrame({'videos': getvideos()})

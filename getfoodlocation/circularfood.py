@@ -24,7 +24,7 @@ class Food_GUI(QWidget):
     def initUI(self):
         self.resize(self.framewidth, self.frameheight) # frame size
         self.setWindowTitle('Foodsource Selector')
-        self.setWindowIcon(QIcon("food.png"))
+        self.setWindowIcon(QIcon("../icons/food.png"))
 
         # name for text vBox
         self.selectimg = QLabel("Select image", self)
