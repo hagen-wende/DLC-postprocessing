@@ -64,17 +64,11 @@ for video in projectfiles['videos']:
     if h5_file:
         projectfiles['h5files'][projectfiles.index[projectfiles['videos'] == video]] = h5_file[0]
 
-#video files, fps, conditions
-
-# read in data and do something
-
-# analysis:
+# Analysis
 # general activity
 #   number of animals active
-#   speed of movement
 # presence at feed pots
 #   total
-#   duration of visit
 #   comparison between different food sources
 
 for h5_file in projectfiles['h5files']:
@@ -87,3 +81,8 @@ for h5_file in projectfiles['h5files']:
         plt.show()
     else:
         print("no data to analyse for ", projectfiles['videos'][projectfiles.index[projectfiles['h5files'] == h5_file]][0])
+
+
+# TODO
+# presence at feed pots
+#   duration of visit

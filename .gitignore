@@ -1,4 +1,6 @@
 data/
 output/
 video/
+__pycache__/
 */__pycache__/
+ideas/
