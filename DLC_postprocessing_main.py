@@ -80,7 +80,9 @@ for video in projectfiles['videos']:
 for h5_file in projectfiles['h5files']:
     if h5_file:
         foodcsv = projectfiles['foodcsvs'][projectfiles.index[projectfiles['h5files'] == h5_file]][0]
-        animalsfeeding = feedingcount.analysis(h5_file, foodcsv, 2, 5000)
+        # for small files rollingwindow must be reduced!!!
+        animalsfeeding = feedingcount.analysis(h5_file, foodcsv, 2, 100)
+        print(h5_file)
         animalsfeeding.plot(x='time')
         plt.show()
     else:
