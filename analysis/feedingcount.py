@@ -19,7 +19,7 @@ def isactive(x_test):
     else:
         return 1
 
-def analysis(h5file, foodcsv, fps, rollingwindow):
+def analysis(h5file, foodcsv, fps):
     # the DLC h5 output is a multiindex pandas dataframe
     input_df = pd.read_hdf(h5file)
 
@@ -45,15 +45,12 @@ def analysis(h5file, foodcsv, fps, rollingwindow):
                     temp_df['head'] = input_df[input_df.columns[0][0]][animal]['head'].apply(lambda row: incircle(row['x'], row['y'], x_food, y_food, rad_food), axis=1)
                     temp_df['scutellum'] = input_df[input_df.columns[0][0]][animal]['scutellum'].apply(lambda row: incircle(row['x'], row['y'], x_food, y_food, rad_food), axis=1)
                     input_df[input_df.columns[0][0],'all','analysis','sumfeeding_'+str(i)] += temp_df[["head", "scutellum"]].max(axis=1)
-                # make rollig mean to smooth dataframe
-                input_df[input_df.columns[0][0],'all','analysis','sumfeeding_'+str(i)] = input_df[input_df.columns[0][0],'all','analysis','sumfeeding_'+str(i)].rolling(rollingwindow).mean()
 
     # 'scutellum' is the most robust for beetles as it is in the middel --> use this for general activity
     print("calculating sum of general activity... ")
     for animal in sorted(set(input_df.columns.get_level_values('individuals')[input_df.columns.get_level_values('individuals') != 'all'])):
         input_df[input_df.columns[0][0],'all','analysis','isactive'] += input_df[input_df.columns[0][0]][animal]['scutellum'].apply(lambda row: isactive(row['x']), axis=1)
         print(animal)
-    input_df[input_df.columns[0][0],'all','analysis','isactive'] = input_df[input_df.columns[0][0],'all','analysis','isactive'].rolling(rollingwindow).mean()
     return input_df.sort_index(axis=1)
 
 if __name__ == '__main__':

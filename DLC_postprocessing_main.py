@@ -71,18 +71,20 @@ for video in projectfiles['videos']:
 #   total
 #   comparison between different food sources
 
-for h5_file in projectfiles['h5files']:
-    if h5_file:
-        foodcsv = projectfiles['foodcsvs'][projectfiles.index[projectfiles['h5files'] == h5_file]][0]
+for h5file in projectfiles['h5files']:
+    if h5file:
+        foodcsv = projectfiles['foodcsvs'][projectfiles.index[projectfiles['h5files'] == h5file]][0]
         # for small files rollingwindow must be reduced!!!
-        animalsfeeding = feedingcount.analysis(h5_file, foodcsv, 2, 100)
-        print(h5_file)
-        animalsfeeding[animalsfeeding.columns[0][0],'all','analysis'].plot(x='time')
-        plt.show()
+        animalsfeeding = feedingcount.analysis(h5file, foodcsv, 2, 100)
+        print(h5file)
     else:
         print("no data to analyse for ", projectfiles['videos'][projectfiles.index[projectfiles['h5files'] == h5_file]][0])
 
-
+animalsfeeding[animalsfeeding.columns[0][0],'all','analysis'].plot(x='time')
+plt.show()
+# make rollig mean to smooth dataframe
+input_df[input_df.columns[0][0],'all','analysis','sumfeeding_'+str(i)] = input_df[input_df.columns[0][0],'all','analysis','sumfeeding_'+str(i)].rolling(rollingwindow).mean()
+input_df[input_df.columns[0][0],'all','analysis','isactive'] = input_df[input_df.columns[0][0],'all','analysis','isactive'].rolling(rollingwindow).mean()
 # TODO
 # presence at feed pots
 #   duration of visit
