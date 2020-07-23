@@ -117,7 +117,10 @@ for h5file in projectfiles['h5files']:
     else:
         print("no data to analyse for ", projectfiles['videos'][projectfiles.index[projectfiles['h5files'] == h5_file]][0])
 
-##### frame videos
+
+
+
+##### frame videos for visualization of the process
 import matplotlib.colors
 import math
 
@@ -138,7 +141,7 @@ image = cv2.imread(stillframe)
 print(image.shape)
 (im_height, im_width, color) = image.shape
 image = np.zeros((im_height,im_width,color), np.uint8)
-image[:,:]=(0,0,0)
+image[:,:]=(255,255,255)
 
 df = animalsfeeding
 df = df.iloc[:, df.columns.get_level_values(1).isin(['paemula3'])]
@@ -150,7 +153,7 @@ df = df.iloc[:, (df.columns.get_level_values('bodyparts') == 'head')]
 vidpath, vidname = os.path.split(os.path.abspath(projectfiles['videos'][projectfiles.index[projectfiles['h5files'] == h5_file]][0]))
 
 # output video
-vidout = cv2.VideoWriter('data/output/project.mp4',cv2.VideoWriter_fourcc(*'MP4V'), 25, (im_width,im_height))
+vidout = cv2.VideoWriter('data/output/project_white.mp4',cv2.VideoWriter_fourcc(*'MP4V'), 25, (im_width,im_height))
 
 food = []
 # get circle coordinates
@@ -164,14 +167,15 @@ if os.path.isfile(projectfiles['foodcsvs'][projectfiles.index[projectfiles['h5fi
             x,y,rad = int(x), int(y), int(rad)
             food += [[x,y,rad]]
 
+feeding = []
 df.columns = [col[3] for col in df.columns]
 # black frames for the first frames in which the trail doesn't fit
 for frame in range(trail):
-    image[:,:]=(0,0,0)
+    image[:,:]=(255,255,255)
     vidout.write(image)
 
 for frame in range(trail, len(df)):
-    image[:,:]=(0,0,0)
+    image[:,:]=(255,255,255)
 
     for x,y,time in zip(list(df[frame-trail:frame]['x']),list(df[frame-trail:frame]['y']), [(x-max(list(df[frame-trail:frame].index)))/2 for x in list(df[frame-trail:frame].index)]):
         if not (math.isnan(x) & math.isnan(y)):
@@ -180,6 +184,13 @@ for frame in range(trail, len(df)):
             # color by frame
             pointcolor=tuple([int(x*256) for x in cmap(norm(time))[:3]])
             image = cv2.circle(image, (x,y), radius=5, color=pointcolor, thickness=-1)
+
+    if (df['sumfeeding_0'][frame] == 1) | (df['sumfeeding_1'][frame] == 1):
+        feeding += [[int(df['x'][frame]), int(df['y'][frame])]]
+
+    # draw green circles for visits
+    for coordinate in feeding:
+        image = cv2.circle(image, tuple(coordinate), radius=5, color=(0,255,0), thickness=-1)
 
     #draw food circles
     image = cv2.circle(image, (food[0][0],food[0][1]), radius=food[0][2], color=(0,0,0), thickness=2)
