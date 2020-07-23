@@ -26,29 +26,30 @@ def analysis(h5file, foodcsv, fps):
     input_df[input_df.columns[0][0],'all','analysis','time'] = [x / (fps*60*60) for x in list(input_df.index)] # time in hours
     input_df[input_df.columns[0][0],'all','analysis','isactive'] = 0
 
-# count 'head' occurences in feeding spots individually
+# count 'head' and 'scutellum occurences in feeding spots individually
     if os.path.isfile(foodcsv):
         with open(foodcsv, mode='r') as infile:
             file_reader = csv.reader(infile, delimiter=',', quotechar='"')
             # skip header
             next(file_reader)
-            # get food locations
+            # loop over food locations
             for i, line in enumerate(file_reader):
-                x_food,y_food,rad_food = [int(x) for x in line]
+                x_food, y_food, rad_food = [int(x) for x in line]
                 print("calculating presence in spot: ", line)
-                # make separate column for each food spot
                 input_df[input_df.columns[0][0],'all','analysis','sumfeeding_'+str(i)] = 0
-                temp_df = pd.DataFrame(input_df.index.values)
                 for animal in sorted(set(input_df.columns.get_level_values('individuals')[input_df.columns.get_level_values('individuals') != 'all'])):
                     print(animal)
-                    # check whether either head or scutellum are within the food circle
-                    temp_df['head'] = input_df[input_df.columns[0][0]][animal]['head'].apply(lambda row: incircle(row['x'], row['y'], x_food, y_food, rad_food), axis=1)
-                    temp_df['scutellum'] = input_df[input_df.columns[0][0]][animal]['scutellum'].apply(lambda row: incircle(row['x'], row['y'], x_food, y_food, rad_food), axis=1)
-                    input_df[input_df.columns[0][0],'all','analysis','sumfeeding_'+str(i)] += temp_df[["head", "scutellum"]].max(axis=1)
+                    # check whether either head or scutellum are within the food circle and add 0/1 for each animal
+                    input_df[input_df.columns[0][0],animal,'head','sumfeeding_'+str(i)] = input_df[input_df.columns[0][0]][animal]['head'].apply(lambda row: incircle(row['x'], row['y'], x_food, y_food, rad_food), axis=1)
+                    input_df[input_df.columns[0][0],animal,'scutellum','sumfeeding_'+str(i)] = input_df[input_df.columns[0][0]][animal]['scutellum'].apply(lambda row: incircle(row['x'], row['y'], x_food, y_food, rad_food), axis=1)
+                    # feeding sum for all animals
+                    input_df[input_df.columns[0][0],'all','analysis','sumfeeding_'+str(i)] += input_df.xs('sumfeeding_'+str(i), axis=1, level=3, drop_level=False)[input_df.columns[0][0],animal][["head", "scutellum"]].max(axis=1)
+                    input_df.sort_index(axis=1)
 
     # 'scutellum' is the most robust for beetles as it is in the middel --> use this for general activity
     print("calculating sum of general activity... ")
     for animal in sorted(set(input_df.columns.get_level_values('individuals')[input_df.columns.get_level_values('individuals') != 'all'])):
+        input_df[input_df.columns[0][0],animal,'scutellum','isactive'] = input_df[input_df.columns[0][0]][animal]['scutellum'].apply(lambda row: isactive(row['x']), axis=1)
         input_df[input_df.columns[0][0],'all','analysis','isactive'] += input_df[input_df.columns[0][0]][animal]['scutellum'].apply(lambda row: isactive(row['x']), axis=1)
         print(animal)
     return input_df.sort_index(axis=1)
@@ -59,7 +60,7 @@ if __name__ == '__main__':
     os.chdir(path)
     file = os.path.join(path,"data","200710_paemula_crop_sampleDLC_resnet50_200714PaemulaJul14shuffle1_50000_bx.h5")
     foodcsv = os.path.join(path,"data","200710_paemula_crop_sample_stillframe.pngfood.csv")
-    animalsfeeding = analysis(file, foodcsv, 2, 1200)
+    animalsfeeding = analysis(file, foodcsv, 2)
 
     animalsfeeding[animalsfeeding.columns[0][0],'all','analysis'].plot(x='time')
     plt.show()
