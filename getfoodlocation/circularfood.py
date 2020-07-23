@@ -13,7 +13,7 @@ class Food_GUI(QWidget):
         self.framewidth = width
         self.frameheight = height
         self.file = [file]
-        self.radius = 60
+        self.radius = 50
         self.imgscalefact = 1
         self.initUI()
         if self.file[0] != '':
