@@ -1,5 +1,7 @@
-import getfoodlocation.circularfood as markfood
-import analysis.feedingcount as feedingcount
+import analysis
+import getfoodlocation
+# import analysis.feedingcount as feedingcount
+# import analysis.activity as activity
 from tkinter import Tk
 from tkinter.filedialog import askdirectory
 import glob
@@ -10,9 +12,12 @@ import matplotlib.pyplot as plt
 import datetime
 
 def getvideos():
-    Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
+    root = Tk()
+    root.wm_attributes('-topmost', 1) # opens windows in front
+    root.withdraw() # we don't want a full GUI, so keep the root window from appearing
     foldername = askdirectory() # show an "Open" dialog box and return the path to the selected file
     videos = glob.glob(os.path.join(foldername, '*.mp4'))
+    root.destroy()
     return videos
 
 def extractframe(video_name):
@@ -86,7 +91,7 @@ else:
 projectfiles['foodcsvs'] = ''
 for frame in projectfiles['stillframes']:
     if not os.path.isfile(frame+"food.csv"):
-        markfood.startGUI(frame)
+        getfoodlocation.startGUI(frame)
     projectfiles['foodcsvs'][projectfiles.index[projectfiles['stillframes'] == frame]] = [frame+"food.csv"]
 
 # get list of h5 files corresponding to the videos
@@ -112,8 +117,13 @@ for h5file in projectfiles['h5files']:
     if h5file:
         foodcsv = projectfiles['foodcsvs'][projectfiles.index[projectfiles['h5files'] == h5file]][0]
 
-        animalsfeeding = feedingcount.analysis(h5file, foodcsv, 2)
-        plotactivity(h5file, animalsfeeding, rollingwindow, starttime)
+        # feedingcount.feeding(h5file, csv of food cirlce, fps)
+        animalsfeeding = analysis.feeding(h5file, foodcsv, 2)
+        # feedingcount.feeding(h5file, fps)
+        animalsactive = analysis.activity(h5file, 2)
+
+        combined_df = pd.concat([animalsfeeding, animalsactive])
+        plotactivity(h5file, combined_df, rollingwindow, starttime)
     else:
         print("no data to analyse for ", projectfiles['videos'][projectfiles.index[projectfiles['h5files'] == h5_file]][0])
 
@@ -153,7 +163,7 @@ df = df.iloc[:, (df.columns.get_level_values('bodyparts') == 'head')]
 vidpath, vidname = os.path.split(os.path.abspath(projectfiles['videos'][projectfiles.index[projectfiles['h5files'] == h5_file]][0]))
 
 # output video
-vidout = cv2.VideoWriter('data/output/project_white.mp4',cv2.VideoWriter_fourcc(*'MP4V'), 25, (im_width,im_height))
+vidout = cv2.VideoWriter('../data/output/project_white.mp4',cv2.VideoWriter_fourcc(*'MP4V'), 25, (im_width,im_height))
 
 food = []
 # get circle coordinates
