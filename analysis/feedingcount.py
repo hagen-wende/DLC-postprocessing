@@ -19,12 +19,11 @@ def isactive(x_test):
     else:
         return 1
 
-def analysis(h5file, foodcsv, fps):
+def feeding(h5file, foodcsv, fps):
     # the DLC h5 output is a multiindex pandas dataframe
     input_df = pd.read_hdf(h5file)
 
     input_df[input_df.columns[0][0],'all','analysis','time'] = [x / (fps*60*60) for x in list(input_df.index)] # time in hours
-    input_df[input_df.columns[0][0],'all','analysis','isactive'] = 0
 
 # count 'head' and 'scutellum occurences in feeding spots individually
     if os.path.isfile(foodcsv):
@@ -46,12 +45,6 @@ def analysis(h5file, foodcsv, fps):
                     input_df[input_df.columns[0][0],'all','analysis','sumfeeding_'+str(i)] += input_df.xs('sumfeeding_'+str(i), axis=1, level=3, drop_level=False)[input_df.columns[0][0],animal][["head", "scutellum"]].max(axis=1)
                     input_df.sort_index(axis=1)
 
-    # 'scutellum' is the most robust for beetles as it is in the middel --> use this for general activity
-    print("calculating sum of general activity... ")
-    for animal in sorted(set(input_df.columns.get_level_values('individuals')[input_df.columns.get_level_values('individuals') != 'all'])):
-        input_df[input_df.columns[0][0],animal,'scutellum','isactive'] = input_df[input_df.columns[0][0]][animal]['scutellum'].apply(lambda row: isactive(row['x']), axis=1)
-        input_df[input_df.columns[0][0],'all','analysis','isactive'] += input_df[input_df.columns[0][0]][animal]['scutellum'].apply(lambda row: isactive(row['x']), axis=1)
-        print(animal)
     return input_df.sort_index(axis=1)
 
 if __name__ == '__main__':
@@ -60,7 +53,7 @@ if __name__ == '__main__':
     os.chdir(path)
     file = os.path.join(path,"data","200710_paemula_crop_sampleDLC_resnet50_200714PaemulaJul14shuffle1_50000_bx.h5")
     foodcsv = os.path.join(path,"data","200710_paemula_crop_sample_stillframe.pngfood.csv")
-    animalsfeeding = analysis(file, foodcsv, 2)
+    animalsfeeding = feeding(file, foodcsv, 2)
 
     animalsfeeding[animalsfeeding.columns[0][0],'all','analysis'].plot(x='time')
     plt.show()
