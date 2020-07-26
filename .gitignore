@@ -6,3 +6,4 @@ video/
 __pycache__/
 */__pycache__/
 ideas/
+.gitignore
