@@ -1,9 +1,0 @@
-data/
-data_1/
-data_vis/
-output/
-video/
-__pycache__/
-*/__pycache__/
-ideas/
-.gitignore
