@@ -41,6 +41,7 @@ def extractframe(video_name):
     # save frame
     cv2.imwrite(my_video_name+'_stillframe.png', frame)
 
+## todo: generalize output for different scenarios and put into a module
 def plotactivity(h5file, animalsdf, rollingwindow, starttime):
     # make rollig mean to smooth data
     animalsdf[animalsdf.columns[0][0],'all','analysis','sumfeeding_0'] = animalsdf[animalsdf.columns[0][0],'all','analysis','sumfeeding_0'].rolling(rollingwindow).mean()
@@ -51,7 +52,7 @@ def plotactivity(h5file, animalsdf, rollingwindow, starttime):
     animalsdf[animalsdf.columns[0][0],'all','analysis','time'] = animalsdf[animalsdf.columns[0][0],'all','analysis', 'time']+8
 
     fig = plt.figure()
-    fig.suptitle('Pachnoda aemula activity', fontsize=20)
+    fig.suptitle('Pachnoda aemula activity', fontsize=30)
     fig.set_size_inches(5*2.54, 2.5*2.54)
     ax1 = fig.add_subplot()
     fig.patch.set_facecolor('#e2e2e2')
@@ -66,6 +67,7 @@ def plotactivity(h5file, animalsdf, rollingwindow, starttime):
 
     ax1.set_xlabel("time (hours)", fontsize=17)
     ax1.set_ylabel("# of beetles", rotation=90, fontsize=17)
+    ax1.tick_params(axis='both', which='major', labelsize=15)
     ax1.legend((l1, l2, l3), ('beetles feeding on artificial diet', 'beetles feeding on banana', 'active beetles'), loc='upper right', shadow=True)
 
     fig.savefig(h5file+'_activity.png', facecolor=fig.get_facecolor())
@@ -73,6 +75,7 @@ def plotactivity(h5file, animalsdf, rollingwindow, starttime):
 ####################################################
 #### collect and prepare data ######################
 #### mark foodlocation for all videos if not present
+
 # collect all project file names in Dataframe
 projectfiles = pd.DataFrame({'videos': getvideos()})
 
@@ -132,98 +135,14 @@ for h5file in projectfiles['h5files']:
 
 
 
-##### frame videos for visualization of the process
-import matplotlib.colors
-import math
-
-trail = 40
-
-# colors
-cmap = plt.cm.rainbow
-norm = matplotlib.colors.Normalize(vmin=-trail/2, vmax=0)
-
-#image dimensions
-import cv2
-import csv
-import numpy as np
-
-RGBblack = (0,0,0)
-RGBwhite = (255,255,255)
-
-bgcolor = RGBblack
-
-stillframe = projectfiles['stillframes'][projectfiles.index[projectfiles['h5files'] == h5file]][0]
-
-image = cv2.imread(stillframe)
-print(image.shape)
-(im_height, im_width, color) = image.shape
-image = np.zeros((im_height,im_width,color), np.uint8)
-image[:,:]=bgcolor
-
-df = animalsfeeding
-df = df.iloc[:, df.columns.get_level_values(1).isin(['paemula3'])]
-
-#df = df.iloc[:, (df.columns.get_level_values('bodyparts') == 'head') | (df.columns.get_level_values('bodyparts') == 'scutellum')]
-df = df.iloc[:, (df.columns.get_level_values('bodyparts') == 'head')]
-
-
-vidpath, vidname = os.path.split(os.path.abspath(projectfiles['videos'][projectfiles.index[projectfiles['h5files'] == h5_file]][0]))
-
-# output video
-vidout = cv2.VideoWriter('../data_vis/output/project_black.mp4',cv2.VideoWriter_fourcc(*'MP4V'), 25, (im_width,im_height))
-
-food = []
-# get circle coordinates
-if os.path.isfile(projectfiles['foodcsvs'][projectfiles.index[projectfiles['h5files'] == h5file]][0]):
-    with open(projectfiles['foodcsvs'][projectfiles.index[projectfiles['h5files'] == h5file]][0], mode='r') as infile:
-        file_reader = csv.reader(infile, delimiter=',', quotechar='"')
-        # skip header
-        next(file_reader)
-        for row in file_reader:
-            x,y,rad = row
-            x,y,rad = int(x), int(y), int(rad)
-            food += [[x,y,rad]]
-
-feeding = []
-
-df.columns = [col[3] for col in df.columns]
-# black frames for the first frames in which the trail doesn't fit
-for frame in range(trail):
-    image[:,:]=bgcolor
-    vidout.write(image)
-
-for frame in range(trail, len(df)):
-    image[:,:]=bgcolor
-
-    for x,y,time in zip(list(df[frame-trail:frame]['x']),list(df[frame-trail:frame]['y']), [(x-max(list(df[frame-trail:frame].index)))/2 for x in list(df[frame-trail:frame].index)]):
-        if not (math.isnan(x) & math.isnan(y)):
-            x= int(x)
-            y= int(y)
-            # color by frame
-            pointcolor=tuple([int(x*256) for x in cmap(norm(time))[:3]])
-            image = cv2.circle(image, (x,y), radius=5, color=pointcolor, thickness=-1)
-
-    ### skip a few for presentation vid
-    if frame > 300:
-        if (df['sumfeeding_0'][frame] == 1) | (df['sumfeeding_1'][frame] == 1):
-            feeding += [[int(df['x'][frame]), int(df['y'][frame])]]
-
-
-    # draw green circles for visits
-    for coordinate in feeding:
-        image = cv2.circle(image, tuple(coordinate), radius=5, color=(0,255,0), thickness=-1)
-
-    #draw food circles
-    image = cv2.circle(image, (food[0][0],food[0][1]), radius=food[0][2], color=RGBblack, thickness=2)
-    image = cv2.circle(image, (food[1][0],food[1][1]), radius=food[1][2], color=RGBblack, thickness=2)
-
-    vidout.write(image)
-
-vidout.release()
-
-
-# TODO
+##############
+# TODO List ##
+##############
+# general
+# smoothing trajectories
+# interpolating missing values
 # presence at feed pots
 #   duration of visit
+#   summation and statistics of results
 # activity
 #   resting vs moving

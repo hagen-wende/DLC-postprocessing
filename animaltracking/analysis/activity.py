@@ -29,7 +29,7 @@ def activity(h5file, fps):
     return input_df.sort_index(axis=1)
 
 if __name__ == '__main__':
-    # do something
+    # test data
     path="D:\\Hobby\\kaefer_tracking\\raspberry_pi\\00_DLC_postprocessing"
     os.chdir(path)
     file = os.path.join(path,"data","200710_paemula_crop_sampleDLC_resnet50_200714PaemulaJul14shuffle1_50000_bx.h5")

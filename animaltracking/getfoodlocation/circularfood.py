@@ -20,7 +20,6 @@ class Food_GUI(QWidget):
             self.show_image()
             self.textbox.setText(self.file[0])
 
-
     def initUI(self):
         self.resize(self.framewidth, self.frameheight) # frame size
         self.setWindowTitle('Foodsource Selector')
@@ -63,11 +62,6 @@ class Food_GUI(QWidget):
         self.savebutton.clicked.connect(self.savecoords)
 
         self.saveconfirmation = QLabel('')
-
-    # img_label = QLabel()
-    # img_label.setPixmap(pixmap)
-    # img_label.mousePressEvent = self.getPixel
-
 
         #### Layout
 
@@ -113,7 +107,7 @@ class Food_GUI(QWidget):
         tools.addItem(verticalSpacer2)
 
         # main layout
-        main = QVBoxLayout() # leere basis layout
+        main = QVBoxLayout()
         main.addLayout(hBox,1)
 
         bottom = QHBoxLayout()
@@ -124,8 +118,6 @@ class Food_GUI(QWidget):
 
         self.setLayout(main) ## activate main
         self.show()
-
-
 
     def browse(self):
         self.file = QFileDialog.getOpenFileName(self, 'Open file','.',"Image files (*.jpg *.gif *.png)")
@@ -152,7 +144,6 @@ class Food_GUI(QWidget):
                     self.painter.setPen(QPen(Qt.red, 3, Qt.SolidLine))
                     self.painter.drawEllipse(x-rad, y-rad, 2*rad, 2*rad)
         self.painter.end()
-
 
     def getPixel(self, event):
         self.xcoord = event.pos().x()
@@ -195,7 +186,7 @@ def startGUI(file=''):
     app = QApplication(sys.argv)
     #### stylesheets
     app.setStyleSheet(STYLE)
-    # actiate GUI with 800x800
+    # actiate GUI with 800x800px
     w = Food_GUI(800,800, file)
     # run the app
     app.exec_()
@@ -214,7 +205,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     #### stylesheets
     app.setStyleSheet(STYLE)
-    # actiate GUI with 800x800
+    # actiate GUI with 800x800px
     w = Food_GUI(800,800, '')
     # run the app
     sys.exit(app.exec_())

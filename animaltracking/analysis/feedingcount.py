@@ -13,19 +13,13 @@ def incircle(x_test,y_test,x_circ,y_circ,rad_circ):
     else:
         return 0
 
-def isactive(x_test):
-    if math.isnan(x_test):
-        return 0
-    else:
-        return 1
-
 def feeding(h5file, foodcsv, fps):
     # the DLC h5 output is a multiindex pandas dataframe
     input_df = pd.read_hdf(h5file)
 
     input_df[input_df.columns[0][0],'all','analysis','time'] = [x / (fps*60*60) for x in list(input_df.index)] # time in hours
 
-# count 'head' and 'scutellum occurences in feeding spots individually
+    # count 'head' and 'scutellum occurences in feeding spots individually
     if os.path.isfile(foodcsv):
         with open(foodcsv, mode='r') as infile:
             file_reader = csv.reader(infile, delimiter=',', quotechar='"')
@@ -48,7 +42,7 @@ def feeding(h5file, foodcsv, fps):
     return input_df.sort_index(axis=1)
 
 if __name__ == '__main__':
-    # do something
+    # dataset for testing module
     path="D:\\Hobby\\kaefer_tracking\\raspberry_pi\\00_DLC_postprocessing"
     os.chdir(path)
     file = os.path.join(path,"data","200710_paemula_crop_sampleDLC_resnet50_200714PaemulaJul14shuffle1_50000_bx.h5")
