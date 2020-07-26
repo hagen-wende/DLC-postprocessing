@@ -68,7 +68,7 @@ def plotactivity(h5file, animalsdf, rollingwindow, starttime):
     ax1.set_xlabel("time (hours)", fontsize=17)
     ax1.set_ylabel("# of beetles", rotation=90, fontsize=17)
     ax1.tick_params(axis='both', which='major', labelsize=15)
-    ax1.legend((l1, l2, l3), ('beetles feeding on artificial diet', 'beetles feeding on banana', 'active beetles'), loc='upper right', shadow=True)
+    ax1.legend((l1, l2, l3), ('beetles feeding on banana', 'beetles feeding on artificial diet', 'active beetles'), loc='upper right', shadow=True)
 
     fig.savefig(h5file+'_activity.png', facecolor=fig.get_facecolor())
 
