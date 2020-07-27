@@ -11,3 +11,9 @@ Postprocessing for <a href="https://github.com/DeepLabCut/DeepLabCut">DeepLabCut
 ## Example results
 
 <img alt="" src="https://www.hagen-wende.de/images/github/beetle_analysis_output.png">
+
+++ ToDos
+Output videos for presentations (in progress)
+Interpolation of missing values
+Smoothing of trajectories
+statistics
