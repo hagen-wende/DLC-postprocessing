@@ -28,6 +28,7 @@ def activity(h5file, fps):
         print(animal)
     return input_df.sort_index(axis=1)
 
+# input_df = input_df.sort_index(axis=1)
 if __name__ == '__main__':
     # test data
     path="D:\\Hobby\\kaefer_tracking\\raspberry_pi\\00_DLC_postprocessing"

@@ -8,6 +8,11 @@ Postprocessing for <a href="https://github.com/DeepLabCut/DeepLabCut">DeepLabCut
 - GUI to interactively select circular food source
 - track presence and overall duration at food source(s)
 
+## Requirements
+
+- h5 output file from DeepLabCut
+
+
 ## Example results
 
 <img alt="" src="https://www.hagen-wende.de/images/github/beetle_analysis_output.png">

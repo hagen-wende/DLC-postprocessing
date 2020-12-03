@@ -59,7 +59,7 @@ def plotactivity(h5file, animalsdf, rollingwindow, starttime):
     ax1.set_facecolor('#bebebe')
     #ax1.set_ylim(min(y_values)-1,max(y_values)+1)
     #ax1.set_xlim(0,7)
-
+    animalsdf = animalsdf.sort_index(axis=1)
     # plot regress line
     l1, = ax1.plot(animalsdf[animalsdf.columns[0][0],'all','analysis']['time'], animalsdf[animalsdf.columns[0][0],'all','analysis']['sumfeeding_0'], '#08ae27', zorder = 1)
     l2, = ax1.plot(animalsdf[animalsdf.columns[0][0],'all','analysis']['time'], animalsdf[animalsdf.columns[0][0],'all','analysis']['sumfeeding_1'], '#000076', zorder = 2)
@@ -71,6 +71,7 @@ def plotactivity(h5file, animalsdf, rollingwindow, starttime):
     ax1.legend((l1, l2, l3), ('beetles feeding on artificial diet', 'beetles feeding on banana', 'active beetles'), loc='upper right', shadow=True)
 
     fig.savefig(h5file+'_activity.png', facecolor=fig.get_facecolor())
+
 
 ####################################################
 #### collect and prepare data ######################
