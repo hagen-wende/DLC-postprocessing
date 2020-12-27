@@ -44,8 +44,8 @@ def extractframe(video_name):
 ## todo: generalize output for different scenarios and put into a module
 def plotactivity(h5file, animalsdf, rollingwindow, starttime):
     # make rollig mean to smooth data
-    animalsdf[animalsdf.columns[0][0],'all','analysis','sumfeeding_0'] = animalsdf[animalsdf.columns[0][0],'all','analysis','sumfeeding_0'].rolling(rollingwindow).mean()
-    animalsdf[animalsdf.columns[0][0],'all','analysis','sumfeeding_1'] = animalsdf[animalsdf.columns[0][0],'all','analysis','sumfeeding_1'].rolling(rollingwindow).mean()
+    animalsdf[animalsdf.columns[0][0],'all','analysis','sumfeeding_banana'] = animalsdf[animalsdf.columns[0][0],'all','analysis','sumfeeding_banana'].rolling(rollingwindow).mean()
+    animalsdf[animalsdf.columns[0][0],'all','analysis','sumfeeding_artificial diet'] = animalsdf[animalsdf.columns[0][0],'all','analysis','sumfeeding_artificial diet'].rolling(rollingwindow).mean()
     animalsdf[animalsdf.columns[0][0],'all','analysis','isactive'] = animalsdf[animalsdf.columns[0][0],'all','analysis','isactive'].rolling(rollingwindow).mean()
 
     # convert time to time of day starting from start of video (8 am)
@@ -61,8 +61,8 @@ def plotactivity(h5file, animalsdf, rollingwindow, starttime):
     #ax1.set_xlim(0,7)
     animalsdf = animalsdf.sort_index(axis=1)
     # plot regress line
-    l1, = ax1.plot(animalsdf[animalsdf.columns[0][0],'all','analysis']['time'], animalsdf[animalsdf.columns[0][0],'all','analysis']['sumfeeding_0'], '#08ae27', zorder = 1)
-    l2, = ax1.plot(animalsdf[animalsdf.columns[0][0],'all','analysis']['time'], animalsdf[animalsdf.columns[0][0],'all','analysis']['sumfeeding_1'], '#000076', zorder = 2)
+    l1, = ax1.plot(animalsdf[animalsdf.columns[0][0],'all','analysis']['time'], animalsdf[animalsdf.columns[0][0],'all','analysis']['sumfeeding_banana'], '#08ae27', zorder = 1)
+    l2, = ax1.plot(animalsdf[animalsdf.columns[0][0],'all','analysis']['time'], animalsdf[animalsdf.columns[0][0],'all','analysis']['sumfeeding_artificial diet'], '#000076', zorder = 2)
     l3, = ax1.plot(animalsdf[animalsdf.columns[0][0],'all','analysis']['time'], animalsdf[animalsdf.columns[0][0],'all','analysis']['isactive'], '#f70606', zorder = 3)
 
     ax1.set_xlabel("time (hours)", fontsize=17)

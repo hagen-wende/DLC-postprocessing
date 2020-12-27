@@ -9,7 +9,7 @@ import os
 class Food_GUI(QWidget):
 
     def __init__(self, width, height, file):
-        super().__init__()
+        super().__init__() # inherit init from QWidget
         self.framewidth = width
         self.frameheight = height
         self.file = [file]
@@ -50,6 +50,7 @@ class Food_GUI(QWidget):
         self.xcoordlabel = QLabel('x')
         self.ycoordlabel = QLabel('y')
         self.radiuslabel = QLabel('radius')
+        self.foodtypelabel = QLabel('Food type')
         self.xcoordtext = QLineEdit(self)
         self.xcoordtext.resize(100,20)
         self.ycoordtext = QLineEdit(self)
@@ -57,12 +58,17 @@ class Food_GUI(QWidget):
         self.radiustext = QLineEdit(self)
         self.radiustext.setText(str(self.radius))
         self.radiustext.returnPressed.connect(self.change_radius)
+        self.foodtype = QLineEdit(self)
+        self.foodtype.resize(100,20)
+        self.foodtype.setText("banana")
 
         self.savebutton = QPushButton('Save')
         self.savebutton.clicked.connect(self.savecoords)
 
         self.saveconfirmation = QLabel('')
 
+        self.usage = QLabel('Select center of food source, adjust radius if necessary. Once satisfied with the selection, enter the food type and press save. Repeat until all food sources have been selected and saved, then close the window.')
+        self.usage.setWordWrap(True)
         #### Layout
 
         # file selection
@@ -91,20 +97,36 @@ class Food_GUI(QWidget):
         coordinates.addWidget(self.ycoordtext)
         coordinates.addWidget(self.radiustext)
 
+        foodtypelabelbox = QHBoxLayout()
+        foodtypelabelbox.addWidget(self.foodtypelabel)
+
+        foodtypebox = QHBoxLayout()
+        foodtypebox.addWidget(self.foodtype)
+
         savewidget = QHBoxLayout()
         savewidget.addWidget(self.savebutton)
         savewidget.addWidget(self.saveconfirmation)
 
-        verticalSpacer = QSpacerItem(0, 100, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        usagetext = QHBoxLayout()
+        usagetext.addWidget(self.usage)
+
+        verticalSpacer = QSpacerItem(0, 50, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         tools.addItem(verticalSpacer)
         tools.addLayout(toolstitel)
         tools.addLayout(toollabels)
         tools.addLayout(coordinates)
+        tools.addLayout(foodtypelabelbox)
+        tools.addLayout(foodtypebox)
         tools.addLayout(savewidget)
 
-        verticalSpacer2 = QSpacerItem(0, 500, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        verticalSpacer2 = QSpacerItem(0, 50, QSizePolicy.Minimum, QSizePolicy.Expanding)
         tools.addItem(verticalSpacer2)
+
+        tools.addLayout(usagetext)
+
+        verticalSpacer3 = QSpacerItem(0, 500, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        tools.addItem(verticalSpacer3)
 
         # main layout
         main = QVBoxLayout()
@@ -135,10 +157,9 @@ class Food_GUI(QWidget):
         if os.path.isfile(self.file[0]+"food.csv"):
             with open(self.file[0]+"food.csv", mode='r') as infile:
                 file_reader = csv.reader(infile, delimiter=',', quotechar='"')
-                # skip header
-                next(file_reader)
+                next(file_reader) # skip header
                 for row in file_reader:
-                    x,y,rad = row
+                    x,y,rad,foodtype = row
                     x,y,rad = int(x)/self.imgscalefact, int(y)/self.imgscalefact, int(rad)/self.imgscalefact
                     x,y,rad = round(x), round(y), round(rad)
                     self.painter.setPen(QPen(Qt.red, 3, Qt.SolidLine))
@@ -171,13 +192,13 @@ class Food_GUI(QWidget):
         if os.path.isfile(self.file[0]+"food.csv"):
             with open(self.file[0]+"food.csv", mode='a', newline='') as outfile:
                 outfile_writer = csv.writer(outfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                outfile_writer.writerow([round(self.xcoord*self.imgscalefact), round(self.ycoord*self.imgscalefact), round(self.radius*self.imgscalefact)])
+                outfile_writer.writerow([round(self.xcoord*self.imgscalefact), round(self.ycoord*self.imgscalefact), round(self.radius*self.imgscalefact), self.foodtype.text()])
 
         else:
             with open(self.file[0]+"food.csv", mode='w', newline='') as outfile:
                 outfile_writer = csv.writer(outfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                outfile_writer.writerow(['x', 'y', 'radius'])
-                outfile_writer.writerow([round(self.xcoord*self.imgscalefact), round(self.ycoord*self.imgscalefact), round(self.radius*self.imgscalefact)])
+                outfile_writer.writerow(['x', 'y', 'radius', 'foodtype'])
+                outfile_writer.writerow([round(self.xcoord*self.imgscalefact), round(self.ycoord*self.imgscalefact), round(self.radius*self.imgscalefact), self.foodtype.text()])
 
         self.saveconfirmation.setText('coordinates saved')
 

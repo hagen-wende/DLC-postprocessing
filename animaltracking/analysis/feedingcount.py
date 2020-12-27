@@ -27,18 +27,19 @@ def feeding(h5file, foodcsv, fps):
             next(file_reader)
             # loop over food locations
             for i, line in enumerate(file_reader):
-                x_food, y_food, rad_food = [int(x) for x in line]
+                x_food, y_food, rad_food = [int(x) for x in line[:3]]
+                foodtype = line[3]
                 print("calculating presence in spot: ", line)
-                input_df[input_df.columns[0][0],'all','analysis','sumfeeding_'+str(i)] = 0
+                input_df[input_df.columns[0][0],'all','analysis','sumfeeding_'+foodtype] = 0
                 for animal in sorted(set(input_df.columns.get_level_values('individuals')[input_df.columns.get_level_values('individuals') != 'all'])):
                     print(animal)
 
                     # check whether either head or scutellum are within the food circle and add 0/1 for each animal
-                    input_df[input_df.columns[0][0],animal,'head','sumfeeding_'+str(i)] = input_df[input_df.columns[0][0]][animal]['head'].apply(lambda row: incircle(row['x'], row['y'], x_food, y_food, rad_food), axis=1)
-                    input_df[input_df.columns[0][0],animal,'scutellum','sumfeeding_'+str(i)] = input_df[input_df.columns[0][0]][animal]['scutellum'].apply(lambda row: incircle(row['x'], row['y'], x_food, y_food, rad_food), axis=1)
+                    input_df[input_df.columns[0][0],animal,'head','sumfeeding_'+foodtype] = input_df[input_df.columns[0][0]][animal]['head'].apply(lambda row: incircle(row['x'], row['y'], x_food, y_food, rad_food), axis=1)
+                    input_df[input_df.columns[0][0],animal,'scutellum','sumfeeding_'+foodtype] = input_df[input_df.columns[0][0]][animal]['scutellum'].apply(lambda row: incircle(row['x'], row['y'], x_food, y_food, rad_food), axis=1)
                     # feeding sum for all animals
                     input_df = input_df.sort_index(axis=1)
-                    input_df[input_df.columns[0][0],'all','analysis','sumfeeding_'+str(i)] += input_df.xs('sumfeeding_'+str(i), axis=1, level=3, drop_level=False)[input_df.columns[0][0],animal][["head", "scutellum"]].max(axis=1)
+                    input_df[input_df.columns[0][0],'all','analysis','sumfeeding_'+foodtype] += input_df.xs('sumfeeding_'+foodtype, axis=1, level=3, drop_level=False)[input_df.columns[0][0],animal][["head", "scutellum"]].max(axis=1)
 
     return input_df.sort_index(axis=1)
 
