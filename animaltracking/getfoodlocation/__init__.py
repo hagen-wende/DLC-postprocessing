@@ -1,1 +1,1 @@
-from getfoodlocation.circularfood import startGUI
+from getfoodlocation.circularfood import markfood

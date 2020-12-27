@@ -43,10 +43,12 @@ def extractframes(df_project):
 
             # add name of stillframe to project
             df_project['stillframes'][df_project.index[df_project['videos'] == video]] = [video[:-4]+"_stillframe.png"]
+
+        return df_project['stillframes']
     else:
         print('no videos found')
 
-    return df_project['stillframes']
+
 
 if __name__ == '__main__':
     ## do nothing
