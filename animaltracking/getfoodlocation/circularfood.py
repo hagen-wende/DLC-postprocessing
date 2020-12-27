@@ -202,15 +202,23 @@ class Food_GUI(QWidget):
 
         self.saveconfirmation.setText('coordinates saved')
 
-def startGUI(file=''):
-    # qapplication object
-    app = QApplication(sys.argv)
-    #### stylesheets
-    app.setStyleSheet(STYLE)
-    # actiate GUI with 800x800px
-    w = Food_GUI(800,800, file)
-    # run the app
-    app.exec_()
+def startGUI(df_project):
+    if 'foodcsvs' not in df_project.columns:
+        df_project['foodcsvs'] = ''
+    for frame in df_project['stillframes']:
+        # if there is no food file for given stillframe, create it
+        if not os.path.isfile(frame+"food.csv"):
+                # qapplication object
+                app = QApplication(sys.argv)
+                #### stylesheets
+                app.setStyleSheet(STYLE)
+                # actiate GUI with 800x800px
+                w = Food_GUI(800,800, frame)
+                # run the app
+                app.exec_()
+
+        # add name of foodfile to project
+        df_project['foodcsvs'][df_project.index[df_project['stillframes'] == frame]] = [frame+"food.csv"]
 
 
 ### stylesheets
