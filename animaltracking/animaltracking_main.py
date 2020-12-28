@@ -57,13 +57,16 @@ else:
             # plotactivity graph
             analysis.plotactivity(h5file, combined_df, rollingwindow, starttime)
 
+            videofilename = df_project['videos'][df_project.index[df_project['h5files'] == h5file]].values[0].rsplit('\\',1)[1]
+
             try: # if df_alldata contains data
-                df_alldata = pd.merge([df_alldata, combined_df], how='left')
+                df_alldata = pd.merge([df_alldata, pd.concat({videofilename: combined_df}, names=['videofilename'], axis=1)], how='left')
             except TypeError: # if df_alldata is still empty
-                df_alldata = pd.concat([df_alldata, combined_df], axis=1)
+                df_alldata = pd.concat([df_alldata, pd.concat({videofilename: combined_df}, names=['videofilename'], axis=1)], axis=1)
         else:
             print("no data to analyse for ", df_project['videos'][df_project.index[df_project['h5files'] == h5_file]][0])
 
+            pd.concat({combined_df.columns[0][0]: combined_df}, names=[h5file], axis=1)
 
     # save analysed dataset and project to csv
     outfilepath = df_project['h5files'][0].rsplit('\\',1)[0]
