@@ -16,15 +16,15 @@ def isactive(x_test):
 def activity(h5file, fps, bodypart):
     # the DLC h5 output is a multiindex pandas dataframe
     input_df = pd.read_hdf(h5file)
-
     # we could also drop this level, since we are not using it
     scorer = input_df.columns[0][0]
 
+    # calculate time from index if not already there
     input_df[scorer,'all','analysis','time'] = [x / (fps*60*60) for x in list(input_df.index)] # time in hours
+
     # new column for activity/presence
     input_df[scorer,'all','analysis','isactive'] = 0
 
-    # 'scutellum' is the most robust for beetles as it is in the middel --> use this for general activity
     print("calculating sum of general activity... ")
     for animal in sorted(set([level for level in input_df.columns.get_level_values('individuals') if level != 'all'])):
         print(animal)
@@ -33,17 +33,17 @@ def activity(h5file, fps, bodypart):
     return input_df.sort_index(axis=1)
 
 ## todo: generalize output for different scenarios and put into a module
-def plotactivity(h5file, animalsdf, rollingwindow, starttime):
+def plotactivity(h5file, input_df, rollingwindow, starttime):
 
     # we could also drop this level, since we are not using it
-    scorer = animalsdf.columns[0][0]
+    scorer = input_df.columns[0][0]
 
-    for condition in sorted(set([level for level in animalsdf.columns.get_level_values('coords') if level not in ['time', 'x', 'y', 'likelihood']])):
+    for condition in sorted(set([level for level in input_df.columns.get_level_values('coords') if level not in ['time', 'x', 'y', 'likelihood']])):
         # make rollig mean to smooth data
-        animalsdf[scorer,'all','analysis',condition] = animalsdf[scorer,'all','analysis',condition].rolling(rollingwindow).mean()
+        input_df[scorer,'all','rollingmean',condition] = input_df[scorer,'all','analysis',condition].rolling(rollingwindow).mean()
 
     # convert time to time of day starting from start of video (8 am)
-    animalsdf[scorer,'all','analysis','time'] = animalsdf[scorer,'all','analysis','time'] + starttime
+    input_df[scorer,'all','analysis','daytime'] = input_df[scorer,'all','analysis','time'] + starttime
 
     fig = plt.figure()
     fig.suptitle('Animal activity', fontsize=30)
@@ -52,13 +52,13 @@ def plotactivity(h5file, animalsdf, rollingwindow, starttime):
     fig.patch.set_facecolor('#e2e2e2')
     ax1.set_facecolor('#bebebe')
 
-    animalsdf = animalsdf.sort_index(axis=1)
+    input_df = input_df.sort_index(axis=1)
     colors = ['#08ae27', '#000076', '#f70606']
 
     # plot one line for each condition
-    for i, condition in enumerate(sorted(set([level for level in animalsdf.columns.get_level_values('coords') if level not in ['time', 'x', 'y', 'likelihood']]))):
+    for i, condition in enumerate(sorted(set([level for level in input_df.columns.get_level_values('coords') if level not in ['time','daytime', 'x', 'y', 'likelihood']]))):
 
-        ax1.plot(animalsdf[scorer,'all','analysis']['time'], animalsdf[scorer,'all','analysis'][condition], colors[i], zorder = i, label=condition)
+        ax1.plot(input_df[scorer,'all','analysis']['daytime'], input_df[scorer,'all','rollingmean'][condition], colors[i], zorder = i, label=condition)
 
     ax1.set_xlabel("time (hours)", fontsize=17)
     ax1.set_ylabel("# of animals", rotation=90, fontsize=17)

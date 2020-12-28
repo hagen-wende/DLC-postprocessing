@@ -42,20 +42,25 @@ else:
     fps = 2
     bodyparts = ['head', 'scutellum'] # for which bodyparts feeding should be calculated
     bodypartforactivity = 'scutellum'
+
     df_alldata = pd.DataFrame()
 
     # go over all h5 files and analyse them
     for h5file in df_project['h5files']:
         if h5file:
 
-            animalsfeeding = analysis.feeding(h5file, df_project, fps, bodyparts)
-            animalsactive = analysis.activity(h5file, fps, bodypartforactivity)
+            feedingoutput_df = analysis.feeding(h5file, df_project, fps, bodyparts)
+            activityoutput_df = analysis.activity(h5file, fps, bodypartforactivity)
 
-            combined_df = pd.concat([animalsfeeding, animalsactive])
+            combined_df = feedingoutput_df.merge(activityoutput_df, how='left')
+
             # plotactivity graph
             analysis.plotactivity(h5file, combined_df, rollingwindow, starttime)
 
-            df_alldata = pd.concat([df_alldata, combined_df])
+            try: # if df_alldata contains data
+                df_alldata = pd.merge([df_alldata, combined_df], how='left')
+            except TypeError: # if df_alldata is still empty
+                df_alldata = pd.concat([df_alldata, combined_df], axis=1)
         else:
             print("no data to analyse for ", df_project['videos'][df_project.index[df_project['h5files'] == h5_file]][0])
 
