@@ -59,6 +59,7 @@ else:
 
             videofilename = df_project['videos'][df_project.index[df_project['h5files'] == h5file]].values[0].rsplit('\\',1)[1]
 
+            # combines results from the different experiments using the videofilename as an additional multiindex level
             try: # if df_alldata contains data
                 df_alldata = pd.merge([df_alldata, pd.concat({videofilename: combined_df}, names=['videofilename'], axis=1)], how='left')
             except TypeError: # if df_alldata is still empty
