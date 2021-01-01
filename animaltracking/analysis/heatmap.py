@@ -4,7 +4,6 @@ import os
 import cv2
 import time
 import csv
-import cython
 
 def gauss():
     # Initializing value of x-axis and y-axis
@@ -15,13 +14,11 @@ def gauss():
     sigma = 4
     muu = 0.000
     # Calculating Gaussian array
-    gauss = np.exp(-( (dst-muu)**2 / ( 2.0 * sigma**2 ) ) )
+    gauss2D = np.exp(-( (dst-muu)**2 / ( 2.0 * sigma**2 ) ) )
 
     return gauss2D
 
-### cython code needs to be implemented from jupyter notebook (this does not work yet)
-@cython.boundscheck(False)
-cpdef unsigned char[:, :] applygauss(heatmap, gauss, input_df):
+def applygauss(heatmap, gauss, input_df):
     #for row in range(1,100):
     for row in range(len(input_df)):
         try:
@@ -31,7 +28,7 @@ cpdef unsigned char[:, :] applygauss(heatmap, gauss, input_df):
             pass
     return heatmap
 
-def createheatmap(input_df, stillframe, foodcsv):
+def createheatmap(input_df, stillframe, foodcsv, scorer, bodypart):
 
     animals = list(input_df.columns.levels[1])
 
@@ -42,11 +39,13 @@ def createheatmap(input_df, stillframe, foodcsv):
     # initialize empty heatmap
     heatmap = np.zeros(shape=[height+200, width+200], dtype=np.float)
 
+    jetzt = time.time()
     for animal in animals:
         print(animal,"start @ ", time.time()-jetzt, " seconds")
-        heatmap = applygauss(heatmap,gauss,input_df[scorer][animal]['scutellum'])
+        heatmap = applygauss(heatmap,gauss(),input_df[scorer][animal]['head'])
         print(animal,"end   @ ", time.time()-jetzt, " seconds")
 
+    print(gauss().max())
     # normalize heatmap
     Zmax, Zmin = heatmap.max(), heatmap.min()
     heatmap = ((heatmap-Zmin)/(Zmax-Zmin))*255
@@ -80,7 +79,8 @@ def createheatmap(input_df, stillframe, foodcsv):
     heatmap_color = heatmap_color[100:height+100, 100:width+100]
 
     #save image
-    cv2.imwrite(os.path.join(path,"data_testing_1",'heatmap_scutellum_crop.png'), heatmap_color)
+    #!!! naming needs to include video name ...
+    cv2.imwrite(os.path.join(path,"data_testing_1",'heatmap_'+bodypart+'_crop.png'), heatmap_color)
 
     return
 
@@ -96,7 +96,6 @@ if __name__ == '__main__':
 
     # we could also drop this level, since we are not using it
     scorer = input_df.columns[0][0]
+    bodypart = 'head'
 
-    createheatmap(input_df, stillframe, foodcsv)
-
-    plt.show()
+    createheatmap(input_df, stillframe, foodcsv, scorer, bodypart)
