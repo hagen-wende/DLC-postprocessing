@@ -8,7 +8,7 @@ Postprocessing for <a href="https://github.com/DeepLabCut/DeepLabCut">DeepLabCut
 - GUI to interactively select circular food source
 - track and plot presence and overall duration at food source(s)
 - track and plot activity
-- make heatmaps
+- heatmaps
 
 ## Requirements
 
