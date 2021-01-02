@@ -42,20 +42,25 @@ else:
     fps = 2
     bodyparts = ['head', 'scutellum'] # for which bodyparts feeding should be calculated
     bodypartforactivity = 'scutellum'
+    bodypartforheatmap = 'head'
 
     df_alldata = pd.DataFrame()
 
     # go over all h5 files and analyse them
     for h5file in df_project['h5files']:
         if h5file:
-
+            print("Analysing ", h5file.rsplit('\\',1)[1])
+            # analyse feeding and activity
             feedingoutput_df = analysis.feeding(h5file, df_project, fps, bodyparts)
             activityoutput_df = analysis.activity(h5file, fps, bodypartforactivity)
-
             combined_df = feedingoutput_df.merge(activityoutput_df, how='left')
 
             # plotactivity graph
             analysis.plotactivity(h5file, combined_df, rollingwindow, starttime)
+
+            # generate heatmaps
+            heatmap = analysis.createheatmap(h5file, df_project, bodypartforheatmap, gausssize=51)
+            analysis.saveheatmapwithfood(heatmap, h5file, df_project, bodypartforheatmap)
 
             videofilename = df_project['videos'][df_project.index[df_project['h5files'] == h5file]].values[0].rsplit('\\',1)[1]
 

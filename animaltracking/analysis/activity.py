@@ -34,7 +34,7 @@ def activity(h5file, fps, bodypart):
 
 ## todo: generalize output for different scenarios and put into a module
 def plotactivity(h5file, input_df, rollingwindow, starttime):
-
+    print("making activity plot ... ")
     # we could also drop this level, since we are not using it
     scorer = input_df.columns[0][0]
 
